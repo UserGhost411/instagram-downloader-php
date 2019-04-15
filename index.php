@@ -7,6 +7,28 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <style>
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  margin-bottom: 40px; /* Margin bottom by footer height */
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40px; /* Set the fixed height of the footer here */
+  line-height: 40px; /* Vertically center the text there */
+  background-color: #f5f5f5;
+}
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+
+
 img.modal-img {
   cursor: pointer;
   transition: 0.3s;
@@ -69,11 +91,13 @@ img.modal-img:hover {
   }
 }
 
+
+
 </style>
 <body>
 <div class="container">
  <h2>Instagram Downloader</h2>
-  <p>Download Image / Video From Instagram Profile , just input url Instagram Profile Here:</p>
+  <p>Download Image / Video / IGTV From Instagram , just input url Instagram Profile / Post Here:</p>
   <form class="form" method="POST" onsubmit="letsgo();return false;">
     <div class="col-sm-10">
       <input type="url" class="form-control" id="igurl" placeholder="Enter Url Instagram" name="igurl" required>
@@ -84,8 +108,16 @@ img.modal-img:hover {
   </form>
   <div id="hasil">
 
-</div></div>
+</div>
 
+
+
+</div>
+<footer class="footer">
+      <div class="container">
+        <span class="text-muted"><center>Developed By <a target="_BLANK" href="https://github.com/UserGhost411/instagram-downloader-php">UserGhost411</a></center></span>
+      </div>
+    </footer>
   <script>
 function showimg(urlnya){
  document.getElementById("imgnya").src=urlnya;
@@ -118,13 +150,10 @@ function showimg(urlnya){
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Modal Header</h4>
+          <h4 class="modal-title">View Image</h4>
         </div>
         <div class="modal-body"><center>
           <img style="max-width:700px;" id="imgnya"></center>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -132,8 +161,10 @@ function showimg(urlnya){
    <div class="modal fade" id="loadmodal" role="dialog" data-keyboard="false" data-backdrop="static">
     <div class="modal-dialog modal-sm">
       <div class="modal-content">
-        <div class="modal-body"><center>
-         LOADING , Please Wait</center>
+        <div class="modal-body">
+          <center>
+         LOADING , Please Wait
+         </center>
         </div>
       </div>
     </div>
