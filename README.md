@@ -17,4 +17,4 @@ This script requires the following installed:
  
  # License
 
-php-simple-thumb is licensed under the [MIT license](LICENSE), see [LICENSE.md](LICENSE) for details.
+instagram-downloader-php is licensed under the [MIT license](LICENSE), see [LICENSE.md](LICENSE) for details.
