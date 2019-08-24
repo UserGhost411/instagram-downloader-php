@@ -1,6 +1,5 @@
 <?php
   error_reporting(0);
-
   function get_string_between($string, $start, $end){
     $string = " " . $string;
     $ini = strpos($string, $start);
@@ -9,12 +8,10 @@
     $len = strpos($string, $end, $ini) - $ini;
     return substr($string, $ini, $len);
   }
-
   function write2log($typelog,$logstring){
     $ip=$_SERVER['REMOTE_ADDR'];
     error_log($typelog."#".date("d/m/Y H:i:s")."#".$ip."#".$logstring."#\n",3,"ig.log");
   }
-
   function getContents($str, $startDelimiter, $endDelimiter) {
     $contents = array();
     $startDelimiterLength = strlen($startDelimiter);
@@ -29,7 +26,6 @@
     }
   return $contents;
   }
-
   function checkstringada($str,$cari){
     if (strpos($str, $cari) === false) {
       return "0";
@@ -37,12 +33,10 @@
       return "1";
     }
   }
-
   function check_200($url) {
     $headers=get_headers($url, 1);
     if ($headers[0]!='HTTP/1.1 200 OK') return false; else return true;
   }
-
   function addparam($url,$param){
     $url = str_replace("\u0026","&",$url);
     if ( strpos($url, "?")) {
@@ -51,7 +45,6 @@
       return $url . "?" . $param;
     }
   }
-
   function decodecaption($str){
     if($str){
       $str = json_decode('"'.$str.'"');
@@ -66,7 +59,6 @@
     //$hasilhdpic = json_decode($contentapi);//get_string_between($contentapi , '"hd_profile_pic_url_info": {"url": "','"');
   return $contentapi;
   }
-
   if (isset($_POST['urlx'])){
     $urlx = $_POST['urlx'];
     echo "<br><br><hr>";
@@ -120,8 +112,10 @@ if (empty(trim($hasilokVideo))){
   ';
     $x++;
   }
-
 }else{
+if($hasilokVideo=="https://static.cdninstagram.com/rsrc.php/null.jpg"){
+  $hasilokVideo= get_string_between($htmlok ,'property="og:video" content="','"');
+}
 echo '
 <div class="col-sm-6 col-md-offset-3">
 <div class="panel panel-default ">
@@ -134,18 +128,15 @@ Your browser does not support the video tag.
   <a href="'.addparam($hasilokVideo,"dl=1").'" class="btn btn-success" role="button">Download Videos</a>
 </div>
 </div>
-
 	';
 }
 }else{
 $hasilokProfile = getContents($htmlok , '"display_url":"','","edge_liked_by"');
 $hasilokcaption = getContents($htmlok , '"text":"','"');
-
 //print_r($igprofile);
 $igpic = $igprofile['user']['hd_profile_pic_url_info']['url'];
 $x = 0;
 echo '
-
 <div class="panel panel-default ">
 <div class="panel-heading"><b>'.$igprofile['user']['full_name'].'</b></div>
 <div class="panel-body">
@@ -167,7 +158,6 @@ echo '
 </div>
 </div>
 </div>
-
 </div>
 </div><div class="row">';
 while($x <= count($hasilokProfile)-1) {
@@ -188,5 +178,4 @@ echo "</div>";
 }else{
 echo "<form action='' method='POST'><input type='url' name='urlx'><input type='submit'> ";
 }
-
 ?>
