@@ -95,9 +95,9 @@
     $char = "'";
 if ($inipage=="1"){
 $hasilokGambar = getContents($htmlok ,'"display_url":"','"');
-$hasilokVideo = get_string_between($htmlok ,'"video_url":"','"');
+$hasilokVideo = getContents($htmlok ,'"video_url":"','"');
 $captionnya = decodecaption(get_string_between($htmlok ,'"text":"','"'));
-if (empty(trim($hasilokVideo))){
+if (checkstringada($htmlok,'"is_video":true')==0){
   $x = 0;
   while($x <= count($hasilokGambar)-1) {
     echo '
@@ -114,22 +114,29 @@ if (empty(trim($hasilokVideo))){
   }
 }else{
 if($hasilokVideo=="https://static.cdninstagram.com/rsrc.php/null.jpg"){
-  $hasilokVideo= get_string_between($htmlok ,'property="og:video" content="','"');
+  $hasilokVideo= getContents($htmlok ,'property="og:video" content="','"');
 }
+$a = 0;
+echo '<div class="col-sm-12">';
+while($a <= count($hasilokVideo)-1) {
 echo '
-<div class="col-sm-6 col-md-offset-3">
 <div class="panel panel-default ">
-  <div class="panel-body"><video width="500" height="300" controls>
-  <source src="'.$hasilokVideo.'" type="video/mp4">
+  <div class="panel-body"><center><video width="500" height="300" controls>
+  <source src="'.$hasilokVideo[$a].'" type="video/mp4">
 Your browser does not support the video tag.
-</video></div>
+</video></center>
+</div>
   <div class="panel-footer">
   <strong>'.$captionnya.'</strong><br><BR>
-  <a href="'.addparam($hasilokVideo,"dl=1").'" class="btn btn-success" role="button">Download Videos</a>
+  <a href="'.addparam($hasilokVideo[$a],"dl=1").'" class="btn btn-success" role="button">Download Videos</a>
 </div>
 </div>
-	';
+  ';
+  $a++;
 }
+echo '</div>';
+}
+
 }else{
 $hasilokProfile = getContents($htmlok , '"display_url":"','","edge_liked_by"');
 $hasilokcaption = getContents($htmlok , '"text":"','"');
