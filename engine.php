@@ -12,177 +12,173 @@
     $ip=$_SERVER['REMOTE_ADDR'];
     error_log($typelog."#".date("d/m/Y H:i:s")."#".$ip."#".$logstring."#\n",3,"ig.log");
   }
-  function getContents($str, $startDelimiter, $endDelimiter) {
-    $contents = array();
-    $startDelimiterLength = strlen($startDelimiter);
-    $endDelimiterLength = strlen($endDelimiter);
-    $startFrom = $contentStart = $contentEnd = 0;
-    while (false !== ($contentStart = strpos($str, $startDelimiter, $startFrom))) {
-      $contentStart += $startDelimiterLength;
-      $contentEnd = strpos($str, $endDelimiter, $contentStart);
-      if (false === $contentEnd) {break;}
-      $contents[] = substr($str, $contentStart, $contentEnd - $contentStart);
-      $startFrom = $contentEnd + $endDelimiterLength;
-    }
-  return $contents;
+  function contains($str,$cari){
+    if (strpos($str, $cari) === false)return "0";else return "1";
   }
-  function checkstringada($str,$cari){
-    if (strpos($str, $cari) === false) {
-      return "0";
-    } else {
-      return "1";
-    }
+  function get_content($url){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_BODY, 1);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return $output;
   }
   function check_200($url) {
-    $headers=get_headers($url, 1);
-    if ($headers[0]!='HTTP/1.1 200 OK') return false; else return true;
-  }
-  function addparam($url,$param){
-    $url = str_replace("\u0026","&",$url);
-    if ( strpos($url, "?")) {
-      return $url . "&" . $param;
-    }else{
-      return $url . "?" . $param;
-    }
-  }
-  function decodecaption($str){
-    if($str){
-      $str = json_decode('"'.$str.'"');
-      return substr($str,0,150);
-    }else{
-      return "No Caption Avalaible";
-    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_BODY, 0);
+    curl_setopt($ch, CURLOPT_HEADER, 1);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    if(explode("\n",$output)[0]=='HTTP/1.1 200 OK')return false; else return true;
   }
   function IGPROFILE_API($uid){
-    $apix = "https://i.instagram.com/api/v1/users/$uid/info/";
-    $contentapi = file_get_contents($apix);
-    //$hasilhdpic = json_decode($contentapi);//get_string_between($contentapi , '"hd_profile_pic_url_info": {"url": "','"');
-  return $contentapi;
+    $apix = "https://www.instagram.com/$uid/?__a=1";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $apix);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_BODY, 1);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Instagram 64.0.0.14.96');
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($output,true);
   }
   if (isset($_POST['urlx'])){
     $urlx = $_POST['urlx'];
     echo "<br><br><hr>";
-    //Check Http(s) Protocols
-      if (checkstringada($urlx,"http")==0 || checkstringada($urlx,"https")==0){
-        die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Please provide complete URL to the photo page including http or https.</div>');
-      }
-    //valid URL instagram
-      if (checkstringada($urlx,"www.instagram.com")==0){
-        die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> You sure you entering a valid Instagram URL?.</div>');
-      }
-    //Check Post is Not Avalaible Or Private
-      if (check_200($urlx)==false){
-        die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Post Is Deleted or Private.</div>');
-      }
-    $htmlok = file_get_contents($urlx."");
-    $iguid = get_string_between($htmlok,'"profilePage_','"');
-    
-    write2log("1","Open:".$urlx);
-      if (checkstringada($urlx,"/p/")==0){
-        $inipage="0";
-        if(empty($iguid)){
-          die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Cant Find This Instagram Account.</div>');
-          }
-        $igprofile = json_decode(IGPROFILE_API($iguid),TRUE);
-      }else{
-        $inipage="1";
-       
-      }
-      if (checkstringada($htmlok,'"is_private":true,')==1){
-        die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> This Instagram Account Is Private.</div>');
-      }
-    
-    $char = "'";
-if ($inipage=="1"){
-$hasilokGambar = getContents($htmlok ,'"display_url":"','"');
-$hasilokVideo = getContents($htmlok ,'"video_url":"','"');
-$captionnya = decodecaption(get_string_between($htmlok ,'"text":"','"'));
-if (checkstringada($htmlok,'"is_video":true')==0){
-  $x = 0;
-  while($x <= count($hasilokGambar)-1) {
-    echo '
-    <div class="col-sm-4">
-  <div class="panel panel-default ">
-    <div class="panel-body"><img width="320" onclick="showimg('.$char.$hasilokGambar[$x].$char.')" src="'.str_replace("\u0026","&",$hasilokGambar[$x]).'"></img></div>
-    <div class="panel-footer">
-    
-    <a href="'.addparam($hasilokGambar[$x],"dl=1").'" class="btn btn-success btn-xs" role="button">Download Picture</a> </div>
-  </div>
-  </div>
-  ';
-    $x++;
-  }
-}else{
-if($hasilokVideo=="https://static.cdninstagram.com/rsrc.php/null.jpg"){
-  $hasilokVideo= getContents($htmlok ,'property="og:video" content="','"');
-}
-$a = 0;
-echo '<div class="col-sm-12">';
-while($a <= count($hasilokVideo)-1) {
-echo '
-<div class="panel panel-default ">
-  <div class="panel-body"><center><video width="500" height="300" controls>
-  <source src="'.$hasilokVideo[$a].'" type="video/mp4">
-Your browser does not support the video tag.
-</video></center>
-</div>
-  <div class="panel-footer">
-  <strong>'.$captionnya.'</strong><br><BR>
-  <a href="'.addparam($hasilokVideo[$a],"dl=1").'" class="btn btn-success" role="button">Download Videos</a>
-</div>
-</div>
-  ';
-  $a++;
-}
-echo '</div>';
-}
+    if (contains($urlx,"http")==0 || contains($urlx,"https")==0){ //Check Http(s) Protocols
+      die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Please provide complete URL to the photo page including http or https.</div>');
+    }
+    if (contains($urlx,"www.instagram.com")==0){//valid URL instagram
+      die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> You sure you entering a valid Instagram URL?.</div>');
+    }
+    if (check_200($urlx)==false){//Check Post is Not Avalaible Or Private
+      die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Post Is Deleted or Private.</div>');
+    }
 
-}else{
-$hasilokProfile = getContents($htmlok , '"display_url":"','","edge_liked_by"');
-$hasilokcaption = getContents($htmlok , '"text":"','"');
-//print_r($igprofile);
-$igpic = $igprofile['user']['hd_profile_pic_url_info']['url'];
-$x = 0;
-echo '
-<div class="panel panel-default ">
-<div class="panel-heading"><b>'.$igprofile['user']['full_name'].'</b></div>
-<div class="panel-body">
-<div class="row">
-<div class="col-sm-2">
-<img class="img-responsive img-circle" onclick="showimg('.$char.$igpic.$char.')" width="150" src="'.str_replace("\u0026","&",$igpic).'">
-</div>
-<div class="col-sm-10">
-<h1><b>'.$igprofile['user']['full_name'].'</b>('.$igprofile['user']['username'].')</h1>
-<span class="label label-default">Followers:'.$igprofile['user']['follower_count'].'</span>
-<span class="label label-primary">Following:'.$igprofile['user']['following_count'].'</span>
-<span class="label label-success">Media:'.$igprofile['user']['media_count'].'</span>
-<span class="label label-info">IG-UID:'.$iguid.'</span>
-</div>
-</div>
-<div class="row">
-<div class="col-sm-2">
-<a href="'.addparam($igpic,"dl=1").'" class="btn btn-success btn-xs" role="button">Download Profile Picture</a>
-</div>
-</div>
-</div>
-</div>
-</div><div class="row">';
-while($x <= count($hasilokProfile)-1) {
-  echo '
-  <div class="col-sm-4">
-<div class="panel panel-default ">
-  <div class="panel-body"><img width="320" onclick="showimg('.$char.$hasilokProfile[$x].$char.')" src="'.str_replace("\u0026","&",$hasilokProfile[$x]).'"></img></div>
-  <div class="panel-footer">
-  <strong>'.decodecaption($hasilokcaption[$x]).'</strong><br><BR>
-  <a href="'.addparam($hasilokProfile[$x],"dl=1").'" class="btn btn-success btn-xs" role="button">Download Picture</a> </div>
-</div>
-</div>
-';
-  $x++;
-}
-echo "</div>"; 
-}
-}else{
-echo "<form action='' method='POST'><input type='url' name='urlx'><input type='submit'> ";
-}
+    if (!contains($urlx,"/p/")){
+      $jsondata = json_decode("{".get_string_between(get_content($urlx),"window._sharedData = {","};")."}",true);
+      $totalcontent = $jsondata['entry_data']['ProfilePage'][0]['graphql']['user'];
+      $igusername = $totalcontent['username'];
+      //print_r($totalcontent);
+      //die();
+      $iguid = $totalcontent['id'];
+      $owner = $totalcontent;
+      $pageall = $totalcontent['edge_owner_to_timeline_media']['edges'];
+      if(empty($iguid)){
+        die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Cant Find This Instagram Account.</div>');
+      }
+     
+      $igprofile = IGPROFILE_API($igusername);
+      ?>
+      <div class="panel panel-default ">
+      <div class="panel-heading"><b><?=$igusername?></b></div>
+      <div class="panel-body">
+      <div class="row">
+      <div class="col-sm-2">
+      <img class="img-responsive img-circle" onclick="showimg('<?=$totalcontent['profile_pic_url_hd']?>')" width="150" src="<?=$totalcontent['profile_pic_url_hd']?>">
+      </div>
+      <div class="col-sm-10">
+      <h1><b><?= $totalcontent['full_name'] ?></b> (<?= $igusername ?>)</h1>
+      <span class="label label-default">Followers:<?=$totalcontent['edge_followed_by']['count']?></span>
+      <span class="label label-primary">Following:<?=$totalcontent['edge_follow']['count']?></span>
+      <span class="label label-success">Media:<?=$totalcontent['edge_owner_to_timeline_media']['count']?></span>
+      <span class="label label-info">IG-UID:<?=$iguid?></span>
+      <br><br> <a href="<?=$totalcontent['profile_pic_url_hd']?>&dl=1" class="btn btn-success" role="button">Download Profile Picture</a>
+      </div>
+      </div>
+
+      </div>
+      </div>
+
+      <?php
+      foreach($pageall as $data){
+        $url_pic = $data['node']['display_url'];
+        $short = $data['node']['shortcode'];
+      ?>
+        <div class="col-sm-4">
+          <div class="panel panel-default ">
+            <div class="panel-body"><img width="320" onclick="showimg('<?=$url_pic?>')" src="<?=$url_pic?>"></img></div>
+            <div class="panel-footer">
+              <a href="?url=https://www.instagram.com/p/<?=$short?>/&source=post" class="btn btn-success btn-xs" role="button">See Post</a> 
+            </div>
+          </div>
+        </div>
+      <?php
+      }
+      die();
+    }
+    $jsondata = json_decode("{".get_string_between(get_content($urlx),"window._sharedData = {","};")."}",true);
+    $totalcontent =  $jsondata['entry_data']['PostPage'][0]['graphql']['shortcode_media'];
+    $igusername = $totalcontent['username'];
+    //print_r($jsondata);
+    //die();
+    $iguid = $totalcontent['id'];
+    $owner = $totalcontent;
+
+    if (contains($htmlok,'"is_private":true,')){
+      die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> This Instagram Account Is Private.</div>');
+    }
+    if($totalcontent['is_video']==1){
+      $url_video = $totalcontent['video_url'];
+      ?>
+      <div class="col-sm-12">
+        <div class="panel panel-default ">
+            <div class="panel-body">
+              <center>
+                <video width="500" height="300" controls><source src="<?=$url_video;?>" type="video/mp4">Your browser does not support the video tag.</video>
+              </center>
+            </div>
+            <div class="panel-footer">
+              <strong><?=$totalcontent['edge_media_to_caption']['edges'][0]['node']['text']?></strong><br><BR>
+                <a href="<?=$url_video;?>&dl=1" class="btn btn-success" role="button">Download Videos</a>
+            </div>
+        </div>
+      </div>
+      <?php
+    }else{
+      $first = "<strong>".$totalcontent['edge_media_to_caption']['edges'][0]['node']['text']."</strong><br><BR>";
+      if(array_key_exists('edge_sidecar_to_children',$totalcontent)){
+      foreach($totalcontent['edge_sidecar_to_children']['edges'] as $data){
+        $url_pic = $data['node']['display_url'];
+        ?>
+         <div class="col-sm-4">
+          <div class="panel panel-default ">
+            <div class="panel-body"><img width="320" onclick="showimg('<?=$url_pic?>')" src="<?=$url_pic?>"></img></div>
+            <div class="panel-footer">
+            <?=$first ?>
+              <a href="<?=$url_pic?>&dl=1" class="btn btn-success btn-xs" role="button">Download Picture</a> 
+            </div>
+          </div>
+        </div>
+        <?php
+        $first = "";
+      }
+      }else{
+        $url_pic = $totalcontent['display_url'];
+        ?>
+         <div class="col-sm-4">
+          <div class="panel panel-default ">
+            <div class="panel-body"><img width="320" onclick="showimg('<?=$url_pic?>')" src="<?=$url_pic?>"></img></div>
+            <div class="panel-footer">
+              <?=$first ?>
+              <a href="<?=$url_pic?>&dl=1" class="btn btn-success btn-xs" role="button">Download Picture</a> 
+            </div>
+          </div>
+        </div>
+        <?php
+      }
+    }
+  }
 ?>
