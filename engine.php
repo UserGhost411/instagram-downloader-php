@@ -71,15 +71,12 @@
       $jsondata = json_decode("{".get_string_between(get_content($urlx),"window._sharedData = {","};")."}",true);
       $totalcontent = $jsondata['entry_data']['ProfilePage'][0]['graphql']['user'];
       $igusername = $totalcontent['username'];
-      //print_r($totalcontent);
-      //die();
       $iguid = $totalcontent['id'];
       $owner = $totalcontent;
       $pageall = $totalcontent['edge_owner_to_timeline_media']['edges'];
       if(empty($iguid)){
         die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Cant Find This Instagram Account.</div>');
       }
-     
       $igprofile = IGPROFILE_API($igusername);
       ?>
       <div class="panel panel-default ">
@@ -98,10 +95,8 @@
       <br><br> <a href="<?=$totalcontent['profile_pic_url_hd']?>&dl=1" class="btn btn-success" role="button">Download Profile Picture</a>
       </div>
       </div>
-
       </div>
       </div>
-
       <?php
       foreach($pageall as $data){
         $url_pic = $data['node']['display_url'];
@@ -122,11 +117,8 @@
     $jsondata = json_decode("{".get_string_between(get_content($urlx),"window._sharedData = {","};")."}",true);
     $totalcontent =  $jsondata['entry_data']['PostPage'][0]['graphql']['shortcode_media'];
     $igusername = $totalcontent['username'];
-    //print_r($jsondata);
-    //die();
     $iguid = $totalcontent['id'];
     $owner = $totalcontent;
-
     if (contains($htmlok,'"is_private":true,')){
       die('<div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> This Instagram Account Is Private.</div>');
     }
