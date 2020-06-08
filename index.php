@@ -91,8 +91,6 @@ img.modal-img:hover {
   }
 }
 
-
-
 </style>
 <body>
 <div class="container">
@@ -100,18 +98,22 @@ img.modal-img:hover {
   <p>Download Image / Video / IGTV From Instagram , just input url Instagram Profile / Post Here:</p>
   <form class="form" method="POST" onsubmit="letsgo();return false;">
     <div class="col-sm-10">
-      <input type="url" class="form-control" id="igurl" placeholder="Enter Url Instagram" name="igurl" required>
+      <input type="url" class="form-control" id="igurl" placeholder="Enter Url Instagram" name="igurl" value="<?php
+      error_reporting(0);
+      if(isset($_GET['url'])&& $_GET['source']=="post"){
+        echo $_GET['url'];
+        $panggil = "letsgo();";
+      }else{
+        $panggil ="";
+      }
+      ?>" required>
     </div>
       <div class="col-sm-2">
     <button type="submit" class="btn btn-default">Submit</button>
      </div>
   </form>
   <div id="hasil">
-
 </div>
-
-
-
 </div>
 <footer class="footer">
       <div class="container">
@@ -119,25 +121,23 @@ img.modal-img:hover {
       </div>
     </footer>
   <script>
-function showimg(urlnya){
- document.getElementById("imgnya").src=urlnya;
- $("#myModal").modal('show')
-}
-  </script>
-    <script>
+  function showimg(urlnya){
+  document.getElementById("imgnya").src=urlnya;
+  $("#myModal").modal('show')
+  }
   function letsgo(){
   var urlnya = document.getElementById("igurl").value;
    $("#loadmodal").modal('show')
-
+ 
    var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
 		 $("#loadmodal").modal('hide')
+    
 		if(this.responseText.trim()=="<br><br><hr>"){
 		 document.getElementById("hasil").innerHTML='<br><br><hr><div class="alert alert-danger alert-dismissible"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>Error!</strong> Error Getting Instagram Content.</div>';
 		}else{
 		document.getElementById("hasil").innerHTML=this.responseText;
-	
     }}
   };
   xhttp.open("POST", "engine.php", true);
@@ -145,6 +145,7 @@ function showimg(urlnya){
   xhttp.send("urlx="+urlnya);
   }
     </script>
+  <?php echo "<script>$(document).ready(function() {".$panggil."});</script>";?>
  <div class="modal fade" id="myModal" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -152,8 +153,8 @@ function showimg(urlnya){
           <button type="button" class="close" data-dismiss="modal">&times;</button>
           <h4 class="modal-title">View Image</h4>
         </div>
-        <div class="modal-body"><center>
-          <img style="max-width:700px;" id="imgnya"></center>
+        <div class="modal-body">
+          <center><img style="max-width:700px;" id="imgnya"></center>
         </div>
       </div>
     </div>
